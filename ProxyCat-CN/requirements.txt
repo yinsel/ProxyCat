@@ -4,3 +4,4 @@ colorama
 httpx
 packaging
 httpx[socks]
+httpx-socks[asyncio]

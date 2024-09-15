@@ -1,6 +1,7 @@
 from colorama import init, Fore
 from packaging import version
 from itertools import cycle
+from httpx_socks import AsyncProxyTransport
 import configparser, threading, logoprint, argparse, logging, asyncio, socket, base64, getip, httpx, time, re, struct, random
 
 init(autoreset=True)
@@ -462,19 +463,10 @@ async def check_https_proxy(proxy):
         return response.status_code == 200
 
 async def check_socks_proxy(proxy):
-    proxy_type, proxy_addr = proxy.split('://')
-    proxy_host, proxy_port = proxy_addr.split(':')
-    proxy_port = int(proxy_port)
-    try:
-        reader, writer = await asyncio.wait_for(asyncio.open_connection(proxy_host, proxy_port), timeout=5)
-        writer.write(b'\x05\x01\x00')
-        await writer.drain()
-        response = await asyncio.wait_for(reader.readexactly(2), timeout=5)
-        writer.close()
-        await writer.wait_closed()
-        return response == b'\x05\x00'
-    except Exception:
-        return False
+    transport = AsyncProxyTransport.from_url(proxy)
+    async with httpx.AsyncClient(transport=transport, timeout=10) as client:
+        response = await client.get('http://www.baidu.com')
+        return response.status_code == 200
 
 async def check_proxies(proxies):
     valid_proxies = []
