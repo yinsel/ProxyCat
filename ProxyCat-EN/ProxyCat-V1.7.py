@@ -453,18 +453,18 @@ async def check_proxy(proxy):
         return False
 
 async def check_http_proxy(proxy):
-    async with httpx.AsyncClient(proxies={'http://': proxy}, timeout=10) as client:
+    async with httpx.AsyncClient(proxies={'http://': proxy}, timeout=100) as client:
         response = await client.get('http://www.baidu.com')
         return response.status_code == 200
 
 async def check_https_proxy(proxy):
-    async with httpx.AsyncClient(proxies={'https://': proxy}, timeout=10) as client:
+    async with httpx.AsyncClient(proxies={'https://': proxy}, timeout=100) as client:
         response = await client.get('https://www.baidu.com')
         return response.status_code == 200
 
 async def check_socks_proxy(proxy):
     transport = AsyncProxyTransport.from_url(proxy)
-    async with httpx.AsyncClient(transport=transport, timeout=10) as client:
+    async with httpx.AsyncClient(transport=transport, timeout=100) as client:
         response = await client.get('http://www.baidu.com')
         return response.status_code == 200
 
